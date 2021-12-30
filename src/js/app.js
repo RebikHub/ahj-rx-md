@@ -6,3 +6,4 @@ console.log('app started');
 const dash = new Dashboard();
 
 dash.choiceProjectClick();
+dash.init();
