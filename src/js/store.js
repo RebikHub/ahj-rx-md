@@ -1,67 +1,46 @@
-import { map, scan, pluck } from 'rxjs/operators';
+import {
+  map, scan, pluck, distinctUntilChanged, withLatestFrom,
+} from 'rxjs/operators';
 import {
   fromEvent, share, startWith, Subject,
 } from 'rxjs';
 
-const Actions = {
-  Increment: 'INCREMENT',
-  Decrement: 'DECREMENT',
-  Reset: 'RESET',
-};
+export default class Store {
+  constructor(state) {
+    this.state = state;
+    this.state$ = new Subject();
+    this.actions = {
+      inc: 'inc',
+      dec: 'dev',
+    };
+  }
 
-const sample = {
-  type: 'INCREMENT',
-  payload: 5,
-};
+  static reducer(state, action) {
+    switch (action.type) {
+      case action.inc:
+        return { counter: state.counter + action.payload };
+      case action.dec:
+        return { counter: state.counter - action.payload };
+      default:
+        return state;
+    }
+  }
 
-// Reducer
+  inc() {
+    this.state = Store.reducer(this.state, { type: this.actions.inc, payload: 1 });
+    console.log(this.state);
+    this.state$.next(this.state);
+  }
 
-function reduce(state, action) {
-  switch (action.type) {
-    case Actions.Increment:
-      return { ...state, counter: state.counter + action.payload };
-    case Actions.Decrement:
-      return { ...state, counter: state.counter - action.payload };
-    case Actions.Reset:
-      return { ...state, counter: 0 };
-    default:
-      return state;
+  dec() {
+    this.state = Store.reducer(this.state, { type: this.actions.dec, payload: 1 });
+    console.log(this.state);
+    this.state$.next(this.state);
+  }
+
+  event() {
+    // fromEvent()
+
+    this.state$.subscribe();
   }
 }
-
-class Store {
-  constructor() {
-    this.actions$ = new Subject();
-    this.state$ = this.actions$.asObservable().pipe(
-      startWith({ type: '__INITIALIZATION__' }),
-      scan((state, action) => reduce(state, action), { counter: 0 }),
-      share(),
-    );
-  }
-}
-
-const store = new Store();
-
-store.state$.pipe(
-  pluck('counter'),
-  distinctUntilChanged(),
-).subscribe((value) => {
-  document.getElementById('counterValue').text = value;
-});
-
-const step$ = fromEvent(document.getElementById('stepInput'), 'input').pipe(
-  map((e) => Number(e.target.value) || null),
-  startWith(null),
-);
-
-fromEvent(document.getElementById('incBtn'), 'click').pipe(
-  withLatestFrom(step$),
-).subscribe(([event, step]) => store.inc(step));
-
-fromEvent(document.getElementById('decBtn'), 'click').pipe(
-  withLatestFrom(step$),
-).subscribe(([event, step]) => store.dec(step));
-
-fromEvent(document.getElementById('resetBtn'), 'click').subscribe(
-  ([event, step]) => store.reset(),
-);

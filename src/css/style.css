@@ -76,7 +76,7 @@
     margin-left: 1rem;
 }
 
-.project-name {
+.project-name, .task-name {
     align-self: center;
     margin-right: auto;
     margin-left: 0.5rem;
@@ -142,4 +142,10 @@
 
 .none {
     display: none;
+}
+
+button {
+    width: 15px;
+    height: 15px;
+    background-color: blue;
 }
