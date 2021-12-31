@@ -1,31 +1,56 @@
 import { fromEvent } from 'rxjs';
-import { filter } from 'rxjs/operators';
 
 export default class Dashboard {
-  constructor() {
-    this.projectName = document.querySelector('.project-name');
+  constructor(store) {
+    this.store = store;
+    this.currentProject = document.querySelector('.project-name');
     this.projectsList = document.querySelector('.projects');
+    this.projectNames = document.querySelectorAll('.p-name');
     this.statsProject = document.querySelector('.stats-projects');
     this.tasksProject = document.querySelector('.tasks-projects');
   }
 
-  init(projects) {
-    this.renderStats(projects);
-    this.renderTasks(projects);
+  init() {
+    this.renderStats(this.store.state);
+    this.renderTasks(this.store.state);
     this.changeProject();
   }
 
   changeProject() {
-    fromEvent(this.projectName, 'click').pipe(
-      filter((elem) => {
-        console.log(elem);
-      }),
-    ).subscribe();
+    fromEvent(this.currentProject, 'click').subscribe(() => {
+      if (this.projectsList.classList.contains('none')) {
+        this.projectsList.classList.remove('none');
+      }
+    });
+    fromEvent(this.projectNames, 'click').subscribe((ev) => {
+      this.store.state.current = ev.target.textContent;
+      this.projectsList.classList.add('none');
+      this.tasksProject.textContent = '';
+      this.renderTasks(this.store.state);
+    });
   }
 
-  renderStats(projects) {
-    projects.state.forEach((elem) => {
-      let numDone = null;
+  checkDone(elements) {
+    fromEvent(elements, 'click').subscribe(
+      (ev) => {
+        const nameProject = document.querySelector('.project-name').textContent;
+        const nameTask = ev.target.nextSibling.textContent;
+        if (!ev.target.classList.contains('check')) {
+          ev.target.classList.add('check');
+          this.store.done(nameProject, nameTask);
+        } else {
+          ev.target.classList.remove('check');
+          this.store.unDone(nameProject, nameTask);
+        }
+
+        Dashboard.changeOpen(this.store.state);
+      },
+    );
+  }
+
+  renderStats(project) {
+    project.state.forEach((elem) => {
+      let numDone = 0;
       elem.tasks.forEach((item) => {
         if (!item.done) {
           numDone += 1;
@@ -45,9 +70,10 @@ export default class Dashboard {
     });
   }
 
-  renderTasks(projects) {
-    projects.state.forEach((elem) => {
-      if (projects.current === elem.name) {
+  renderTasks(project) {
+    this.currentProject.textContent = project.current;
+    project.state.forEach((elem) => {
+      if (project.current === elem.name) {
         elem.tasks.forEach((el) => {
           const baseDiv = document.createElement('div');
           const checkDiv = document.createElement('div');
@@ -64,13 +90,14 @@ export default class Dashboard {
         });
       }
     });
+    this.checkDone(document.querySelectorAll('.task-status'));
   }
 
-  static changeOpen(projects) {
-    let numDone = null;
+  static changeOpen(project) {
+    let numDone = 0;
     const projectList = document.querySelectorAll('.count-name');
-    projects.state.forEach((elem) => {
-      if (elem.name === projects.current) {
+    project.state.forEach((elem) => {
+      if (elem.name === project.current) {
         elem.tasks.forEach((item) => {
           if (!item.done) {
             numDone += 1;
@@ -78,8 +105,9 @@ export default class Dashboard {
         });
       }
     });
+
     for (const i of projectList) {
-      if (i.textContent === projects.current) {
+      if (i.textContent === project.current) {
         i.nextSibling.textContent = numDone;
       }
     }

@@ -28,7 +28,7 @@
 
 }
 
-.stats-count, .tasks-project-status {
+.stats-count, .tasks-project-status, .tasks-project-header {
     display: flex;
     width: 100%;
     justify-content: space-between;
@@ -67,7 +67,7 @@
 
 }
 
-.tasks-project-status {
+.tasks-project-header {
     position: relative;
 }
 

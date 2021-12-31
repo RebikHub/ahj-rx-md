@@ -1,5 +1,5 @@
 const projects = {
-  current: 'Frontend',
+  current: 'Android App',
   state: [
     {
       id: 3,
@@ -8,7 +8,7 @@ const projects = {
         {
           id: 31,
           name: 'Push Notification',
-          done: true,
+          done: false,
         },
         {
           id: 32,
@@ -29,7 +29,7 @@ const projects = {
         {
           id: 21,
           name: 'Widget API',
-          done: true,
+          done: false,
         },
         {
           id: 22,
@@ -55,7 +55,7 @@ const projects = {
         {
           id: 11,
           name: 'GET',
-          done: true,
+          done: false,
         },
         {
           id: 12,
@@ -81,7 +81,7 @@ const projects = {
         {
           id: 41,
           name: 'Push Notifications',
-          done: true,
+          done: false,
         },
         {
           id: 42,

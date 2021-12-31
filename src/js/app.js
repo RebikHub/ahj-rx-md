@@ -1,11 +1,15 @@
 import Dashboard from './dashboard';
 import Store from './store';
-import projects from './projects';
 
 console.log('app started');
 
-const dash = new Dashboard();
-const store = new Store(projects);
+const store = new Store();
+const dash = new Dashboard(store);
 
-store.event();
-dash.init(store.state);
+dash.init();
+store.state$.subscribe((s) => {
+  const arrProj = s.state.filter((w) => w.name === s.project);
+  const arrTask = arrProj[0].tasks.filter((m) => m.name === s.task);
+  arrTask[0].done = s.done;
+  return arrTask[0].done;
+});
